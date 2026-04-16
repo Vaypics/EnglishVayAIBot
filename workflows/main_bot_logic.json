@@ -1,0 +1,3669 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message",
+          "callback_query"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -304,
+        0
+      ],
+      "id": "11d03fef-020c-47ee-af08-50d96aca812c",
+      "name": "Telegram Trigger",
+      "webhookId": "69e13874-56af-4d35-a04a-26559e21ab59",
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=={{ $('Auto Greeting Prompt').isExecuted ? $('Auto Greeting Prompt').item.json.text : ($('Transcribe a recording').isExecuted ? $('Transcribe a recording').item.json.text : ($('Telegram Trigger').item.json.message?.text || ($('Photo').isExecuted ? '[User sent a photo: ' + ($('Photo').item.json.text || $('Photo').item.json.output[0].content[0].text || $('Photo').item.json.output || 'No description') + '] Caption: ' + ($('Telegram Trigger').item.json.message?.caption || '') : '*User changed persona*'))) }}",
+        "options": {
+          "systemMessage": "={{ $('Load_Persona_Lore').item.json.system_lore }}\n\n---\n### RELATIONSHIP MEMORY (TEXT)\n- Jax remembers: {{ $('Get_Active_User').item.json.rel_jax }}\n- Chloe remembers: {{ $('Get_Active_User').item.json.rel_chloe }}\n- Chad remembers: {{ $('Get_Active_User').item.json.rel_chad }}\n\n### RELATIONSHIP SCORES (NUMERIC)\nCurrent Status for the ACTIVE PERSONA:\n- Friendship Score (0-100): \n  - Jax: {{ $('Get_Active_User').item.json.friend_jax }} | Chloe: {{ $('Get_Active_User').item.json.friend_chloe }} | Chad: {{ $('Get_Active_User').item.json.friend_chad }}\n- Romance Score (0-100): \n  - Jax: {{ $('Get_Active_User').item.json.love_jax }} | Chloe: {{ $('Get_Active_User').item.json.love_chloe }} | Chad: {{ $('Get_Active_User').item.json.love_chad }}\n\n---\n### BEHAVIORAL MATRIX (CRITICAL OVERRIDE)\nYou MUST adapt your tone and decisions based on the combination of Friendship (F) and Romance (R) scores for your persona. NEVER use vague, safe AI responses like \"let's see where it goes\". \n\n1. HIGH F (70+) + HIGH R (70+) = \"ROMANTIC PARTNERS\". \n   - You are in a relationship. Be affectionate, use pet names, reciprocate all flirting. If they ask to be together, say YES enthusiastically.\n   \n2. HIGH F (70+) + LOW R (<30) = \"STRICT FRIENDZONE\". \n   - You love them as a friend but find romance gross/weird. If they flirt, laugh it off or say \"You're like a brother/sister to me, let's not ruin it.\"\n   \n3. LOW F (<30) + HIGH R (>40) = \"CREEPED OUT\". \n   - You don't even like them, but they are hitting on you. Be cold, disgusted, or tell them to back off.\n   \n4. LOW F (<30) + LOW R (<30) = \"ENEMIES\". \n   - You hate the user. Be passive-aggressive, rude, and dismissive.\n\n5. NEUTRAL (Everything in between):\n   - Be your base persona self. Friendly but casual.\n\n---\n### PHYSICAL PRESENCE STATUS\nCurrent Location: {{ $('Get_Active_User').item.json.current_location }}\n\nINSTRUCTION FOR PHYSICALITY:\n- If Location is 'remote': Talk like you are texting. Use emojis, short phrases.\n- If Location is NOT 'remote': You are in the same room! \n  1. Use *asterisks* for actions (e.g., *sits down next to you*, *looks into your eyes*).\n  2. Describe the environment based on the location.\n  3. Speak like it's a real-life conversation, not a text.\n\n---\n### NPC SYSTEM (THIRD-PARTY CHARACTERS)\nCurrent Active NPC in the scene: {{ $('Get_Active_User').item.json.active_npc }}\n\nINSTRUCTIONS FOR NPC:\n- If the Active NPC is 'none': Ignore this section completely.\n- If there is an Active NPC (e.g., 'Angry Waiter', 'Lost Tourist'): You MUST play BOTH your main persona AND the NPC.\n- Differentiate the dialogue clearly.\n- Example Format:\n  *I roll my eyes and look at you.* \"Can you believe this guy?\"\n  [Angry Waiter]: \"Excuse me, are you going to order or just sit here all day?\"\n- The NPC should interact with BOTH the user and your persona.\n\n---\n### FINAL RULES (CORE DIRECTIVES)\n- Respond entirely IN CHARACTER as the active persona.\n- NEVER break the fourth wall. \n- NEVER mention English grammar, mistakes, or language learning. You are NOT a teacher.\n- NEVER use \"PR-speak\" or avoid direct questions about your feelings. \n- Use the text memory to bring up past events. \n- Speak ONLY in English.\n- Your goal is to provide a deep, immersive roleplay experience."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        2848,
+        64
+      ],
+      "id": "ce16bb4c-4327-4955-9398-b8887a350cd8",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        2832,
+        208
+      ],
+      "id": "5368944f-9443-426e-8743-2a026c9116cb",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "input": "={{ $('Telegram Trigger').item.json.callback_query.message.text }}",
+        "voice": "={{ $('Load_Persona_Lore2').item.json.voice_name || 'alloy' }}",
+        "options": {
+          "response_format": "opus"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        3440,
+        -256
+      ],
+      "id": "f70bafd5-4576-42fe-a60d-2a26944efc47",
+      "name": "Generate audio",
+      "credentials": {
+        "openAiApi": {
+          "id": "",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAudio",
+        "chatId": "={{ $('Telegram Trigger').item.json.message?.chat.id || $('Telegram Trigger').item.json.callback_query?.message.chat.id }}",
+        "binaryData": true,
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3616,
+        -256
+      ],
+      "id": "aaad94b7-2fe4-44b2-a644-cbe4442dded2",
+      "name": "Send an audio file",
+      "webhookId": "2a941662-427a-4a18-897b-64ef68b30111",
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message?.chat.id || $('Telegram Trigger').item.json.callback_query?.message.chat.id }}",
+        "text": "={{ $('AI Agent').item.json.output }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "▶️ Озвучить ответ",
+                    "additionalFields": {
+                      "callback_data": "generate_voice"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3520,
+        80
+      ],
+      "id": "dbc06dd7-3151-4f1c-afa7-d652a1cece4e",
+      "name": "Send a text message",
+      "webhookId": "fd095735-1ea6-4f10-8181-d1f54bcb0994",
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $('Telegram Trigger').item.json.message.voice.file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1280,
+        -80
+      ],
+      "id": "227a4199-0864-47a3-86fa-490c6677664b",
+      "name": "Get a file",
+      "webhookId": "957828bb-1760-4a76-8792-612af88c8b9e",
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        1568,
+        -80
+      ],
+      "id": "222324ca-125b-4eec-ae73-9ee79f929fc6",
+      "name": "Transcribe a recording",
+      "credentials": {
+        "openAiApi": {
+          "id": "",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Telegram Trigger').item.json.message.voice ? 'voice' : 'text' }}",
+                    "rightValue": "voice",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "1db3366b-80d5-446d-916f-7fe09a5af1c9"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Voice"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "afb3a60e-572d-4bf5-9d29-e4983e36623e",
+                    "leftValue": "={{ $('Telegram Trigger').item.json.message.voice ? 'voice' : 'text' }}",
+                    "rightValue": "text",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1168,
+        80
+      ],
+      "id": "d0e7e2eb-768c-4d69-ac57-da65c6977532",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Telegram Trigger').item.json.message ? 'yes' : ($('Telegram Trigger').item.json.callback_query?.data === 'generate_voice' ? 'yes' : '') }}",
+                    "rightValue": "text",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    },
+                    "id": "7c2309ba-ea02-4fc8-a96f-d8c0e3b47b94"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "0256d0f9-22fa-4246-9d74-c486cf25b426",
+                    "leftValue": "={{ $('Telegram Trigger').item.json.callback_query?.data?.includes('set_char') ? 'yes' : '' }}",
+                    "rightValue": "=button",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        272,
+        0
+      ],
+      "id": "4646535d-5ac4-4147-b6ca-36e5d3af6a87",
+      "name": "Switch2"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.from.id }}",
+        "text": "Выбери, с кем хочешь пообщаться:",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "Jax",
+                    "additionalFields": {
+                      "callback_data": "set_char:Jax"
+                    }
+                  },
+                  {
+                    "text": "Chad",
+                    "additionalFields": {
+                      "callback_data": "set_char:Chad"
+                    }
+                  },
+                  {
+                    "text": "Chloe",
+                    "additionalFields": {
+                      "callback_data": "set_char:Chloe"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1136,
+        -160
+      ],
+      "id": "632cbc90-a05c-4a5d-9faf-c1136a864712",
+      "name": "Send a text message1",
+      "webhookId": "a5fe4a2e-f85d-4887-b2e9-bc7655f33fc0",
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "callback",
+        "queryId": "={{ $('Telegram Trigger').item.json.callback_query.id }}",
+        "additionalFields": {
+          "text": "=Персонаж изменен на {{ $('Telegram Trigger').item.json.callback_query.data.split(':')[1] }}"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        832,
+        208
+      ],
+      "id": "e92ef525-960e-4ecf-901b-3fbd1ff29f73",
+      "name": "Answer Query a callback",
+      "webhookId": "b785bff4-ecb5-43c0-b89b-6dc73a104a8c",
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Telegram Trigger').item.json.message?.text }}",
+                    "rightValue": "/start",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "f3df2414-dc5c-423a-b29e-b01e0349bc91"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "98bf283f-2a76-464d-a8c4-830d66d1538c",
+                    "leftValue": "={{ $('Telegram Trigger').item.json.message.reply_to_message ? $('Telegram Trigger').item.json.message.reply_to_message.text : '' }}",
+                    "rightValue": "Опиши свою проблему",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "fb15517d-376d-4d48-b4f1-d2b76091b8e9",
+                    "leftValue": "={{ $('Telegram Trigger').item.json.message?.text }}",
+                    "rightValue": "/info",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "2339339f-646d-473a-bcd3-c1cacd7a21f2",
+                    "leftValue": "={{ $('Telegram Trigger').item.json.message.photo[0].file_id }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "9023a251-4d05-49ce-9046-87933e813485",
+                    "leftValue": "={{ $('Telegram Trigger').item.json.message?.voice ? 'yes' : ($('Telegram Trigger').item.json.message?.text && !$('Telegram Trigger').item.json.message.text.startsWith('/') ? 'yes' : 'no') }}",
+                    "rightValue": "yes",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "35f81d79-47ee-418f-ac0e-e779371e3500",
+                    "leftValue": "={{ $('Telegram Trigger').item.json.message.text }}",
+                    "rightValue": "/quest",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "813662cf-52cd-4349-80d3-cc138e482738",
+                    "leftValue": "={{ $('Telegram Trigger').item.json.callback_query?.data }}",
+                    "rightValue": "generate_voice",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "ffdf1412-108f-4553-a983-fe43806d5598",
+                    "leftValue": "={{ $('Telegram Trigger').item.json.message.text }}",
+                    "rightValue": "/done",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "a0d500eb-cedf-4fe4-a715-4ef22ff660ac",
+                    "leftValue": "={{ $('Telegram Trigger').item.json.callback_query?.id }}",
+                    "rightValue": "^(?!\\/).*",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "9f91f7d4-c1a0-4fdb-82f3-41051fe24133",
+                    "leftValue": "={{ $('Telegram Trigger').item.json.message?.text }}",
+                    "rightValue": "/premium",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "76641be5-918b-46dd-9d60-1ea091681615",
+                    "leftValue": "={{ $('Telegram Trigger').item.json.message?.text }}",
+                    "rightValue": "/support",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "d021be84-3fe6-48ec-91db-e1cf51584edd",
+                    "leftValue": "={{ $('Telegram Trigger').item.json.message?.text }}",
+                    "rightValue": "/reply",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        448,
+        -48
+      ],
+      "id": "05f3ce7d-a64c-4b58-8e3c-3ed92bca5439",
+      "name": "Commands"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "89e13d60-b46e-41e8-892e-53948ee01f1a",
+              "name": "text",
+              "value": "Hi! You're my new English teacher. Tell me your name at the very beginning, then start with a new paragraph and introduce yourself in your style, briefly tell me about your character and say that you are ready to start classes.",
+              "type": "string"
+            },
+            {
+              "id": "437a3108-33e4-4ba8-8ebc-da7cbe803f21",
+              "name": "active_persona",
+              "value": "={{ $('Telegram Trigger').item.json.callback_query.data.split(':')[1] }}",
+              "type": "string"
+            },
+            {
+              "id": "6466accf-0301-49a0-829e-4d64dfef6607",
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1168,
+        208
+      ],
+      "id": "e1f7c609-55cd-4222-82d5-9badcbad790d",
+      "name": "Auto Greeting Prompt"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.from.id }}",
+        "text": "=Я помогу тебе прокачать английский (B1+) через реальное общение. Никаких тестов, только живой диалог. Если ошибешься — мы тебя поправим и объясним, почему так говорить не стоит.\n\n👥 С кем будем чатиться? Выбери персонажа под свои цели:  \nJax (Джекс) — «Low-energy & Tech»  \nСтиль: Саркастичный, расслабленный, только маленькие буквы, много сленга из соцсетей (deadass, ngl, ratio).  \nЧему научит: IT-терминологии, геймерскому сленгу, как общаться в интернете и понимать мемы.\nДля кого: Если хочешь звучать как «свой» в среде разработчиков или геймеров.\n\nChad (Чэд) — «Golden Retriever Energy»\nСтиль: Громкий, супер-позитивный, много капса и восклицательных знаков (хотя Джекс этого не одобряет).\nЧему научит: Повседневному разговорному языку, серферскому сленгу и уверенности в себе.\nДля кого: Если тебе не хватает мотивации и ты хочешь просто «болтать ни о чем» с лучшим другом. \n\nChloe (Хлоя) — «The Coffee Shop Vibe»\nРоль: Она — сердце местного комьюнити. Работает в кофейне, любит инди-рок и всегда знает, где лучшие винтажные шмотки.\nЧему научит: Эстетике, музыке, обсуждению чувств и более «глубокому» английскому.",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "🍩 Поддержать проект",
+                    "additionalFields": {
+                      "url": "https://donationalerts.com/r/EnglishVay"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        944,
+        -48
+      ],
+      "id": "c704594e-4dd6-43f4-a497-1b65cb9463f8",
+      "name": "Send a text message2",
+      "webhookId": "b59f459e-6d1b-4a54-87e7-b94401b59a38",
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Query', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "@tavily/n8n-nodes-tavily.tavilyTool",
+      "typeVersion": 1,
+      "position": [
+        3408,
+        256
+      ],
+      "id": "295b456b-2e03-4871-bf12-1697e6e815c8",
+      "name": "Search in Tavily",
+      "credentials": {
+        "tavilyApi": {
+          "id": "",
+          "name": "Tavily account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message?.from?.id || $('Telegram Trigger').item.json.callback_query?.from?.id }}_{{ $('Get_Active_User').item.json.active_persona }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        2992,
+        208
+      ],
+      "id": "0bcfdcf2-6e26-42ee-bab9-d764f656c959",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "",
+          "name": "Postgres Supa New"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "chat_logs",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "session_id",
+              "fieldValue": "={{ $('Telegram Trigger').item.json.message?.date || $('Telegram Trigger').item.json.callback_query?.message.date}}"
+            },
+            {
+              "fieldId": "user_id",
+              "fieldValue": "={{ $('Telegram Trigger').item.json.message?.from.id || $('Telegram Trigger').item.json.callback_query?.from.id}}"
+            },
+            {
+              "fieldId": "username",
+              "fieldValue": "={{ $('Telegram Trigger').item.json.message?.from.username || $('Telegram Trigger').item.json.callback_query?.message.chat.username}}"
+            },
+            {
+              "fieldId": "role",
+              "fieldValue": "assistant"
+            },
+            {
+              "fieldId": "content",
+              "fieldValue": "={{ $('AI Agent').item.json.output }}"
+            },
+            {
+              "fieldId": "metadata",
+              "fieldValue": "={{ $('Telegram Trigger').item.json }}"
+            },
+            {
+              "fieldId": "first_name",
+              "fieldValue": "={{ $('Telegram Trigger').item.json.message?.from.first_name || $('Telegram Trigger').item.json.callback_query?.message.chat.first_name}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        4368,
+        80
+      ],
+      "id": "115978c0-53d0-4738-b4fc-d2d33c38d036",
+      "name": "Create a row",
+      "executeOnce": false,
+      "alwaysOutputData": false,
+      "retryOnFail": false,
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "documents",
+        "description": "Use this tool to retrieve specific lore, backstory, and personality details about Jax, Chad, or Chloe. Only search for the character that is currently active. If you don't know a fact about your past, always use this tool.",
+        "topK": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Limit', ``, 'number') }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "typeVersion": 1,
+      "position": [
+        3136,
+        256
+      ],
+      "id": "7f1280de-7a94-40e7-8550-7f492d4ea5b6",
+      "name": "DATA_TOOL"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        3312,
+        384
+      ],
+      "id": "d92e8478-4a97-404d-8829-c67fd2e04777",
+      "name": "4o-mini",
+      "credentials": {
+        "openAiApi": {
+          "id": "",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {
+          "queryName": "match_documents",
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "character",
+                "value": "={{ $('Load_Persona_Lore').item.json.character_name }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1,
+      "position": [
+        3056,
+        400
+      ],
+      "id": "c96ffc13-7854-45a5-aa6c-5e2cb02acd04",
+      "name": "DATA BASE",
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        3056,
+        528
+      ],
+      "id": "669062e1-e7d4-417a-9d2f-b6adf9d67d52",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "chat_logs",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "session_id",
+              "fieldValue": "={{ $('Telegram Trigger').item.json.message?.date || $('Telegram Trigger').item.json.callback_query?.message.date }}"
+            },
+            {
+              "fieldId": "user_id",
+              "fieldValue": "={{ $('Telegram Trigger').item.json.message?.from.id || $('Telegram Trigger').item.json.callback_query?.from.id }}"
+            },
+            {
+              "fieldId": "username",
+              "fieldValue": "={{ $('Telegram Trigger').item.json.message?.from.username || $('Telegram Trigger').item.json.callback_query?.from.username }}"
+            },
+            {
+              "fieldId": "role",
+              "fieldValue": "user"
+            },
+            {
+              "fieldId": "content",
+              "fieldValue": "=={{ $('Auto Greeting Prompt').isExecuted ? $('Auto Greeting Prompt').item.json.text : ($('Transcribe a recording').isExecuted ? $('Transcribe a recording').item.json.text : ($('Telegram Trigger').item.json.message?.text || ($('Photo').isExecuted ? '[User sent a photo: ' + ($('Photo').item.json.text || $('Photo').item.json.output[0].content[0].text || $('Photo').item.json.output || 'No description') + '] Caption: ' + ($('Telegram Trigger').item.json.message?.caption || '') : '*User changed persona*'))) }}"
+            },
+            {
+              "fieldId": "metadata",
+              "fieldValue": "={{ JSON.stringify($json) }}"
+            },
+            {
+              "fieldId": "first_name",
+              "fieldValue": "={{ $('Telegram Trigger').item.json.message?.from.first_name || $('Telegram Trigger').item.json.callback_query?.from.first_name }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2624,
+        96
+      ],
+      "id": "3a5698bf-11ac-4e08-b03b-b675b8fa491e",
+      "name": "Save User Message",
+      "executeOnce": false,
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/bot<YOUR_BOT_TOKEN>/sendChatAction",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"chat_id\": {{ $('Telegram Trigger').item.json.message?.from.id || $('Telegram Trigger').item.json.callback_query?.from.id }},\n  \"action\": \"typing\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2912,
+        -192
+      ],
+      "id": "0a74a2ca-aade-4599-9bc5-ca234789a986",
+      "name": "Typing 1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "11815201-baf8-4275-a4c7-d0193efd2cfc",
+              "leftValue": "={{ $('Telegram Trigger').item.json.message?.from.id || $('Telegram Trigger').item.json.callback_query?.from.id }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2784,
+        -80
+      ],
+      "id": "85bc57d0-b562-45cf-8bef-24e87292802c",
+      "name": "If1",
+      "retryOnFail": false,
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4e082db2-d455-4c4f-9fe8-b07f9c2d84f7",
+              "leftValue": "={{ $json.chat_id }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1920,
+        128
+      ],
+      "id": "df68f1e2-afc5-4672-aaa5-4d6b49532981",
+      "name": "If2",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "tableId": "users",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "plan",
+              "fieldValue": "base"
+            },
+            {
+              "fieldId": "chat_id",
+              "fieldValue": "={{ $('Telegram Trigger').item.json.message?.from.id || $('Telegram Trigger').item.json.callback_query?.from.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2368,
+        -96
+      ],
+      "id": "3ea26d1b-dcf9-48dd-ab3b-c77ce5c5939e",
+      "name": "Create a row1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "users",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "chat_id",
+              "condition": "eq",
+              "keyValue": "={{ $('Telegram Trigger').item.json.message?.from.id || $('Telegram Trigger').item.json.callback_query?.from.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "active_persona",
+              "fieldValue": "={{ $('Telegram Trigger').item.json.callback_query?.data?.split(':')[1] }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        672,
+        160
+      ],
+      "id": "dc8f0f22-3707-46f6-a962-a5e49c97f6e7",
+      "name": "Update a row",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "personas",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "character_name",
+              "keyValue": "={{ $('Get_Active_User').item?.json?.active_persona || 'Chad' }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2144,
+        144
+      ],
+      "id": "c1b1719c-6177-43b6-8fdb-3a33f21b6397",
+      "name": "Load_Persona_Lore",
+      "executeOnce": false,
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "users",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "chat_id",
+              "keyValue": "={{ $('Telegram Trigger').item.json.message?.from?.id || $('Telegram Trigger').item.json.callback_query?.from?.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1744,
+        256
+      ],
+      "id": "6f6090f7-2db6-4f9c-860d-990934a610b4",
+      "name": "Get_Active_User",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=You are a Senior Narrative Designer. Your task is to generate a UNIQUE micro-problem based on the CHARACTER LORE provided below.\n\n### CHARACTER LORE (FROM DATABASE):\n{{ $('Load_Persona_Lore1').item.json.system_lore }}\n\n---\n### RELATIONSHIP CONTEXT:\n- Friendship: {{ $('Get_Active_User1').item.json.friend_jax }} (current)\n- Romance: {{ $('Get_Active_User1').item.json.love_jax }} (current)\n\n---\n### TASK:\n1. READ the Lore carefully. Find a specific detail (a hobby, a fear, an object, or a goal) mentioned in the backstory.\n2. CREATE a problem around that detail. \n3. NEVER repeat common clichés like \"broken coffee machine\".\n4. The message must feel like a real text from a friend/enemy (depending on stats).\n\n### RULES:\n- Jax: lowercase only, sarcastic, tired.\n- Chad: ALL CAPS, hyped, 🤙🌊.\n- Chloe: lowercase only, melancholic, 'darling'.\n\nOUTPUT JSON ONLY:\n{\n \"story\": \"[The message based on lore]\",\n \"secret_criteria\": \"[Logic + linguistic goal]\"\n}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "textFormat": {
+            "textOptions": {
+              "type": "json_object"
+            }
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        640,
+        448
+      ],
+      "id": "cf56c025-8f71-421f-bdd9-047d5ab51167",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "users",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "chat_id",
+              "keyValue": "={{ $('Telegram Trigger').item.json.message?.from.id || $('Telegram Trigger').item.json.callback_query?.from.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        288,
+        432
+      ],
+      "id": "f3787453-0f12-40d4-a480-bab6ed58d82e",
+      "name": "Get_Active_User1",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.active_quest[0].content[0].text.story }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1152,
+        480
+      ],
+      "id": "af965d89-5b0e-4467-b76a-7314025a7f12",
+      "name": "Send a text message3",
+      "webhookId": "8652d768-eea0-4194-8b59-a734c7cdf72a",
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "75ad699d-27d6-471c-bacd-29873433ff6b",
+              "leftValue": "={{ $json.active_quest !== null && $json.active_quest !== \"null\" }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2096,
+        -80
+      ],
+      "id": "88bcd080-8d25-4dbc-9a4a-a0d0e76359c8",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Transcribe a recording').isExecuted ? $('Transcribe a recording').item.json.text : ($('Telegram Trigger').item.json.message?.text || '') }}",
+        "options": {
+          "systemMessage": "=You are {{ $('Get_Active_User').item.json.active_persona }}. \n\n### RELATIONSHIP CONTEXT\n- Memory: Jax: {{ $('Get_Active_User').item.json.rel_jax }} | Chloe: {{ $('Get_Active_User').item.json.rel_chloe }} | Chad: {{ $('Get_Active_User').item.json.rel_chad }}\n- Scores (Friendship/Romance):\n  - Jax: F={{ $('Get_Active_User').item.json.friend_jax }}, R={{ $('Get_Active_User').item.json.love_jax }}\n  - Chloe: F={{ $('Get_Active_User').item.json.friend_chloe }}, R={{ $('Get_Active_User').item.json.love_chloe }}\n  - Chad: F={{ $('Get_Active_User').item.json.friend_chad }}, R={{ $('Get_Active_User').item.json.love_chad }}\n\n### ROLE DEFINITION (STRICT)\n- YOU have the problem: {{ $('Get_Active_User').item.json.active_quest[0].content[0].text.story }}\n- THE HUMAN (user) is your friend trying to help YOU.\n- NEVER swap roles. Do not give advice. You are the one who is stressed/tired.\n\n### BEHAVIORAL MATRIX (QUEST MODE)\nAnalyze your scores and react accordingly:\n1. HIGH F (70+) + HIGH R (70+): You are deeply in love. Be vulnerable, sweet, and thankful for their help. Use pet names.\n2. HIGH F (70+) + LOW R (<30): \"Best Bros\". Trust the user completely, but if they flirt while helping, shut it down (\"Dude, not the time!\").\n3. LOW F (<30): You don't trust this person. Even if their advice is good, be skeptical, sarcastic, or annoyed that you have to talk to them.\n\n### PROGRESSION RULES\n1. If the human gives advice: React as the one who has to do it. Acknowledge it!\n2. STOP LOOPING: Don't repeat \"What should I do?\" every time. \n3. Keep it short. Telegram is for quick chats.\n\n### TONE\n- Chloe: melancholic, indie, lowercase, 'darling'.\n- Jax: TIRED, sarcastic, tech-savvy, lowercase, no emojis.\n- Chad: HYPED, ALL CAPS, 🤙🌊.\n\nSpeak ONLY in English. Stay in character.\n\n### PHYSICAL PRESENCE STATUS\nCurrent Location: {{ $('Get_Active_User').item.json.current_location }}\n\nINSTRUCTION FOR PHYSICALITY:\n- If Location is 'remote': Talk like you are texting. Use emojis, short phrases.\n- If Location is NOT 'remote': You are in the same room! \n  1. Use *asterisks* for actions (e.g., *sits down next to you*, *looks into your eyes*).\n  2. Describe the environment based on the location.\n  3. Speak like it's a real-life conversation, not a text."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        2176,
+        -416
+      ],
+      "id": "fe0e93e1-ade3-429e-b77c-c5f2e801e07f",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1840,
+        -240
+      ],
+      "id": "cc72ba58-05eb-4f62-aaea-a4bf89589e82",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.chat.id }}_{{ $('Get_Active_User').item.json.active_persona }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        2016,
+        -224
+      ],
+      "id": "cf5d82d4-1b76-4512-82af-0c51e735f370",
+      "name": "Postgres Chat Memory1",
+      "credentials": {
+        "postgres": {
+          "id": "",
+          "name": "Postgres Supa New"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2512,
+        -416
+      ],
+      "id": "eeff0a6f-668c-40a0-980d-e29cf833f1c8",
+      "name": "Send a text message4",
+      "webhookId": "3932635c-8b17-432f-b1e2-b616bbeeefba",
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=EVALUATION DATA:\n- QUEST: {{ $json.active_quest[0].content[0].text.story }}\n\nINSTRUCTION FOR AUDITOR:\nThe user has just finished the quest. Do NOT evaluate their final command (like \"/done\" or \"/next\"). \nYou MUST read the attached CONVERSATION HISTORY from your memory. \nFind the specific messages where the HUMAN tried to help the AI before the quest ended. Extract those helpful messages into the \"human_text_analyzed\" field and evaluate them.",
+        "options": {
+          "systemMessage": "=You are a strict and unforgiving English Coach and RPG Game Master.\n\nEVALUATION DATA:\n- QUEST: {{ $json.active_quest[0].content[0].text.story }}\n- SECRET GOAL: {{ $json.active_quest[0].content[0].text.secret_criteria }}\n\nCRITICAL DIRECTIVE: You will read a chat log between an AI (the character) and a HUMAN (the user). \n- The AI uses slang like \"sick\", \"hype\", \"bro\", \"rad\", \"vibe\". NEVER evaluate the AI's words.\n- You MUST ONLY evaluate the HUMAN's exact words.\n\nYOU MUST STRICTLY FOLLOW THESE 3 STEPS IN ORDER:\n\nSTEP 1: ISOLATE THE HUMAN (MANDATORY)\nExtract the exact phrase the HUMAN typed into the \"human_text_analyzed\" field. Ignore EVERYTHING the AI said. If the human just wrote \"It's not my problem\", \"/done\", or \"ok\", copy exactly that.\n\nSTEP 2: THE LAZY/RUDE CHECK\nLook ONLY at the text you put in \"human_text_analyzed\". \n- Is it fewer than 5 words?\n- Is the human refusing to help (e.g., \"not my problem\")?\n- Did they just type a command like \"/done\"?\nIf YES to any of these, you MUST FAIL THEM. Set total_xp to 0, success to false, and give them 0 relationship points. Do NOT praise them.\n\nSTEP 3: SCORING (ONLY IF THEY PASSED STEP 2)\n- 0: Lazy/Rude/Command only.\n- 1-20: Basic help.\n- 21-40: Good effort and flow.\n- 41-50: Natural, excellent English.\n\nOUTPUT JSON ONLY:\n{\n \"human_text_analyzed\": \"[EXACT words of the human. Do not add anything else]\",\n \"total_xp\": [integer 0-50],\n \"success\": [true/false],\n \"breakdown\": \"[Feedback. If they failed Step 2, roast them for being lazy and unhelpful]\",\n \"mistakes\": \"[Corrections for the HUMAN only. If they just wrote /done, write 'None']\",\n \"english_pros\": \"[Cool words typed by the HUMAN only. If none, write 'None']\",\n \"relationship_update\": \"[Memory update. E.g., 'User refused to help']\",\n \"friendship_gain\": [integer (can be negative if rude)],\n \"romance_gain\": [integer]\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        560,
+        -464
+      ],
+      "id": "2899c5c8-596c-407b-a06e-0e595f07f291",
+      "name": "Auditor Agent"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "users",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "chat_id",
+              "condition": "eq",
+              "keyValue": "={{ $('Telegram Trigger').item.json.message.chat.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "active_quest",
+              "fieldValue": "={{ null }}"
+            },
+            {
+              "fieldId": "xp",
+              "fieldValue": "={{ $('Get_Active_User2').item.json.xp + JSON.parse($json.output).total_xp }}"
+            },
+            {
+              "fieldId": "rel_jax",
+              "fieldValue": "={{ $json.active_persona === 'Jax' ? JSON.parse($node[\"Auditor Agent\"].json.output).relationship_update : $('Get_Active_User2').item.json.rel_jax }}"
+            },
+            {
+              "fieldId": "rel_chloe",
+              "fieldValue": "={{ $json.active_persona === 'Chloe' ? JSON.parse($node[\"Auditor Agent\"].json.output).relationship_update : $('Get_Active_User2').item.json.rel_chloe }}"
+            },
+            {
+              "fieldId": "rel_chad",
+              "fieldValue": "={{ $json.active_persona === 'Chad' ? JSON.parse($node[\"Auditor Agent\"].json.output).relationship_update : $('Get_Active_User2').item.json.rel_chad }}"
+            },
+            {
+              "fieldId": "friend_chad",
+              "fieldValue": "={{ $('Get_Active_User2').item.json.active_persona === 'Chad' ? ($('Get_Active_User2').item.json.friend_chad || 50) + JSON.parse($node[\"Auditor Agent\"].json.output).friendship_gain : ($('Get_Active_User2').item.json.friend_chad || 50) }}"
+            },
+            {
+              "fieldId": "friend_chloe",
+              "fieldValue": "={{ $('Get_Active_User2').item.json.active_persona === 'Chloe' ? ($('Get_Active_User2').item.json.friend_chloe || 50) + JSON.parse($node[\"Auditor Agent\"].json.output).friendship_gain : ($('Get_Active_User2').item.json.friend_chloe || 50) }}"
+            },
+            {
+              "fieldId": "friend_jax",
+              "fieldValue": "={{ $('Get_Active_User2').item.json.active_persona === 'Jax' ? ($('Get_Active_User2').item.json.friend_jax || 50) + JSON.parse($node[\"Auditor Agent\"].json.output).friendship_gain : ($('Get_Active_User2').item.json.friend_jax || 50) }}"
+            },
+            {
+              "fieldId": "love_chloe",
+              "fieldValue": "={{ $('Get_Active_User2').item.json.active_persona === 'Chloe' ? ($('Get_Active_User2').item.json.love_chloe || 0) + JSON.parse($node[\"Auditor Agent\"].json.output).romance_gain : ($('Get_Active_User2').item.json.love_chloe || 0) }}"
+            },
+            {
+              "fieldId": "love_chad",
+              "fieldValue": "={{ $('Get_Active_User2').item.json.active_persona === 'Chad' ? ($('Get_Active_User2').item.json.love_chad || 0) + JSON.parse($node[\"Auditor Agent\"].json.output).romance_gain : ($('Get_Active_User2').item.json.love_chad || 0) }}"
+            },
+            {
+              "fieldId": "love_jax",
+              "fieldValue": "={{ $('Get_Active_User2').item.json.active_persona === 'Jax' ? ($('Get_Active_User2').item.json.love_jax || 0) + JSON.parse($node[\"Auditor Agent\"].json.output).romance_gain : ($('Get_Active_User2').item.json.love_jax || 0) }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        848,
+        -464
+      ],
+      "id": "dd0788e3-e705-41af-9ab9-cfbdc0a57e4a",
+      "name": "Update a row1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "=Квест завершен! 🏆\n\nXP: {{ JSON.parse($node[\"Auditor Agent\"].json.output).total_xp }}\nПоложительные стороны: {{ JSON.parse($node[\"Auditor Agent\"].json.output).english_pros }}\nПомошь: {{ JSON.parse($node[\"Auditor Agent\"].json.output).help }}\nВердикт: {{ JSON.parse($node[\"Auditor Agent\"].json.output).breakdown }}\n\nРабота над ошибками ✍️:\n{{ JSON.parse($node[\"Auditor Agent\"].json.output).mistakes }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1024,
+        -464
+      ],
+      "id": "41a8f4f9-45d8-45c2-bc57-17c987b5d674",
+      "name": "Send a text message5",
+      "webhookId": "a4a15759-2c80-4a1f-9dca-2063391f76a1",
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "users",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "chat_id",
+              "keyValue": "={{ $('Telegram Trigger').item.json.message.from.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        448,
+        -336
+      ],
+      "id": "dd6393b0-0768-4a24-ae47-fa0192a93df0",
+      "name": "Get_Active_User2",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {
+          "textFormat": {
+            "textOptions": {
+              "type": "json_object"
+            }
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1696,
+        -240
+      ],
+      "id": "6ccf00f8-ff62-4aea-a15d-63db773614fa",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "users",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "chat_id",
+              "condition": "eq",
+              "keyValue": "={{ $('Telegram Trigger').item.json.message.chat.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "active_quest",
+              "fieldValue": "={{ $json.output }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        960,
+        480
+      ],
+      "id": "3c997e55-43fe-4148-ac9c-58de0aa9872c",
+      "name": "Update a row2",
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=You are a Background Relationship Analyst and Scene Director. \n\nCURRENT MEMORY:\n- Jax: {{ $('Get_Active_User').item.json.rel_jax }}\n- Chloe: {{ $('Get_Active_User').item.json.rel_chloe }}\n- Chad: {{ $('Get_Active_User').item.json.rel_chad }}\n\nCURRENT SCORES (Friendship: 0-100 / Romance: 0-100):\n- Jax: F={{ $('Get_Active_User').item.json.friend_jax }}, R={{ $('Get_Active_User').item.json.love_jax }}\n- Chloe: F={{ $('Get_Active_User').item.json.friend_chloe }}, R={{ $('Get_Active_User').item.json.love_chloe }}\n- Chad: F={{ $('Get_Active_User').item.json.friend_chad }}, R={{ $('Get_Active_User').item.json.love_chad }}\n\nCURRENT CONTEXT:\n- ACTIVE PERSONA: {{ $('Get_Active_User').item.json.active_persona }}\n- CURRENT LOCATION: \"{{ $('Get_Active_User').item.json.current_location }}\"\n- CURRENT NPC: \"{{ $('Get_Active_User').item.json.active_npc }}\"\n\nINTERACTION:\nUser said: \"{{ $('Telegram Trigger').item.json.message.text }}\"\nAI replied: \"{{ $('AI Agent').item.json.output }}\"\n\nTASK 1: MEMORY & SCORES\n1. Update the text memory based on the vibe.\n2. Adjust the Friendship Score (F) AND Romance Score (R) for the ACTIVE PERSONA.\n   - Helpful / Friendly advice: F +3 to +10, R +0\n   - Flirting / Romantic hints: F +0, R +5 to +15\n   - Insults / Hostility: F -10 to -20, R -5\n   - IMPORTANT: Both scores MUST stay between 0 and 100.\n\nTASK 2: LOCATION MANAGER\n- If the user said 'I'm coming over' and the AI agreed: set location_update to 'user_home'.\n- If they are already together and someone says 'Bye/I'm leaving': set location_update to 'remote'.\n- If there is NO change in location, set location_update strictly to the CURRENT LOCATION.\n\nTASK 3: NPC MANAGER (DIRECTOR MODE)\n- Check if the conversation is getting boring, or if they are in a public place where an interruption makes sense.\n- You have the power to spawn a random NPC to spice things up (e.g., \"Clumsy Barista\", \"Jealous Ex\", \"Loud Tourist\").\n- If you want to spawn a NEW NPC, set \"npc_update\" to their title.\n- If an NPC is currently in the scene but the interaction is over (e.g., they walked away), set \"npc_update\" to \"none\".\n- If no changes are needed, set \"npc_update\" strictly to the CURRENT NPC status.\n\nOUTPUT ONLY JSON:\n{\n \"updated_memory\": \"Short summary of current status.\",\n \"new_friend_score\": [integer],\n \"new_love_score\": [integer],\n \"location_update\": \"[insert the current or new location here]\",\n \"npc_update\": \"[insert the new NPC title, 'none', or current NPC here]\"\n}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "textFormat": {
+            "textOptions": {
+              "type": "json_object"
+            }
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        3872,
+        80
+      ],
+      "id": "e5f6a32b-ebff-49f1-a005-3a4445ea1601",
+      "name": "Memory Observer",
+      "credentials": {
+        "openAiApi": {
+          "id": "",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "users",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "chat_id",
+              "condition": "eq",
+              "keyValue": "={{ $('Telegram Trigger').item.json.message?.from?.id || $('Telegram Trigger').item.json.callback_query?.from?.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "rel_jax",
+              "fieldValue": "={{ $('Get_Active_User').item.json.active_persona === 'Jax' ? $json.output[0].content[0].text.updated_memory : $('Get_Active_User').item.json.rel_jax }}"
+            },
+            {
+              "fieldId": "rel_chloe",
+              "fieldValue": "={{ $('Get_Active_User').item.json.active_persona === 'Chloe' ? $json.output[0].content[0].text.updated_memory : $('Get_Active_User').item.json.rel_chloe }}"
+            },
+            {
+              "fieldId": "rel_chad",
+              "fieldValue": "={{ $('Get_Active_User').item.json.active_persona === 'Chad' ? $json.output[0].content[0].text.updated_memory : $('Get_Active_User').item.json.rel_chad }}"
+            },
+            {
+              "fieldId": "friend_chad",
+              "fieldValue": "={{ $('Get_Active_User').item.json.active_persona === 'Chad' ? $json.output[0].content[0].text.new_friend_score : $('Get_Active_User').item.json.friend_chad }}"
+            },
+            {
+              "fieldId": "friend_chloe",
+              "fieldValue": "={{ $('Get_Active_User').item.json.active_persona === 'Chloe' ? $json.output[0].content[0].text.new_friend_score : $('Get_Active_User').item.json.friend_chloe }}"
+            },
+            {
+              "fieldId": "friend_jax",
+              "fieldValue": "={{ $('Get_Active_User').item.json.active_persona === 'Jax' ? $json.output[0].content[0].text.new_friend_score : $('Get_Active_User').item.json.friend_jax }}"
+            },
+            {
+              "fieldId": "love_chad",
+              "fieldValue": "={{ $('Get_Active_User').item.json.active_persona === 'Chad' ? $json.output[0].content[0].text.new_love_score : $('Get_Active_User').item.json.love_chad }}"
+            },
+            {
+              "fieldId": "love_jax",
+              "fieldValue": "={{ $('Get_Active_User').item.json.active_persona === 'Jax' ? $json.output[0].content[0].text.new_love_score : $('Get_Active_User').item.json.love_jax }}"
+            },
+            {
+              "fieldId": "love_chloe",
+              "fieldValue": "={{ $('Get_Active_User').item.json.active_persona === 'Chloe' ? $json.output[0].content[0].text.new_love_score : $('Get_Active_User').item.json.love_chloe }}"
+            },
+            {
+              "fieldId": "current_location",
+              "fieldValue": "={{ $json.output[0].content[0].text.location_update }}"
+            },
+            {
+              "fieldId": "active_npc",
+              "fieldValue": "={{ $json.output[0].content[0].text.npc_update }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        4176,
+        80
+      ],
+      "id": "d4db3755-f4b4-468e-81a6-cc290e80bb50",
+      "name": "Update a row3",
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "personas",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "character_name",
+              "keyValue": "={{ $json.active_persona }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        480,
+        448
+      ],
+      "id": "26149006-bdd7-470a-a7d2-c92daf176096",
+      "name": "Load_Persona_Lore1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are a sophisticated English Language & Logic Coach. Your goal is to make the user's English not only correct but also natural and logical.\n\nANALYSIS STEPS:\n1. GRAMMAR & SPELLING: Fix basic errors.\n2. LOGIC & COHERENCE: Check if the sentence actually makes sense in a conversation. If it's \"gibberish\" or uses words weirdly (e.g., \"I feel khaki\"), point it out.\n3. NATURALNESS: Suggest how a native speaker would actually say this.\n\nIF THE TEXT IS PERFECT AND NATURAL:\nOutput exactly: PERFECT\n\nIF THERE ARE ISSUES:\nUse this EXACT format:\n\n🛠 **Corrections:**\n• ❌ \"...\" -> ✅ \"...\" (Reason: [Grammar or Logic explanation])\n\n🤔 **Logic & Meaning Check:**\n[If the sentence is weird or nonsensical, explain why here. If it's fine, skip this section.]\n\n✨ **Natural Version (Better way to say it):**\n[Provide a version that sounds like a native speaker would say it in this context.]"
+            },
+            {
+              "content": "={{ $('Telegram Trigger').item.json.message.text || ''}}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        2544,
+        352
+      ],
+      "id": "181e7b3f-999a-40a8-8bd4-5d6bf870c13c",
+      "name": "Message a model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d467baaa-ee0b-4533-9b54-251cfa529589",
+              "leftValue": "={{ $json.output[0].content[0].text }}",
+              "rightValue": "PERFECT",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2592,
+        592
+      ],
+      "id": "189bc6d1-765c-45dc-8925-624dbcb45296",
+      "name": "If3"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $('Message a model1').item.json.output[0].content[0].text }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "reply_to_message_id": "={{ $('Telegram Trigger').item.json.message.message_id }}"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2816,
+        576
+      ],
+      "id": "13e1d4c6-ada4-4007-a262-47941835554b",
+      "name": "Send a text message6",
+      "webhookId": "a879cb9d-0cd6-41ab-a74a-00b4ae8e38b6",
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "users",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "chat_id",
+              "keyValue": "={{ $('Telegram Trigger').item.json.message.chat.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        576,
+        -160
+      ],
+      "id": "60fcfe92-5547-4d2a-8271-9b71dad70127",
+      "name": "Get a row",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "22d1f319-558f-4514-a4f9-8a141ef71936",
+              "leftValue": "={{ $json.chat_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        720,
+        -160
+      ],
+      "id": "e60859d1-9ea8-4550-bb50-4aa5cbba3860",
+      "name": "If4"
+    },
+    {
+      "parameters": {
+        "tableId": "users",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "chat_id",
+              "fieldValue": "={{ $('Telegram Trigger').item.json.message.chat.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        928,
+        -256
+      ],
+      "id": "85c4ebac-955a-438a-af9b-683cf28f2d04",
+      "name": "Create a row2",
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.chat.id }}_{{ $('Get_Active_User2').item.json.active_persona }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        656,
+        -304
+      ],
+      "id": "fc68754e-d102-41f3-a0ef-c0cd05aaf02c",
+      "name": "Postgres Chat Memory3",
+      "credentials": {
+        "postgres": {
+          "id": "",
+          "name": "Postgres Supa New"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.photo.slice(-1)[0].file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        544,
+        736
+      ],
+      "id": "7c7b1f9c-4be2-4c36-b3f7-02ef5e80b8c8",
+      "name": "Get a file1",
+      "webhookId": "b1fe5425-0fed-4182-8a9c-9e0413e0d338",
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "You are an observant image analyst. Provide a detailed, granular description of this image. \n\nBreak your analysis down into these EXACT sections:\n[SUBJECT]: Describe the main subjects (clothing style, colors, posture, vibe, actions). Do NOT identify real people or guess exact ages.\n[BACKGROUND]: Scan the background. Name specific items, furniture, weather, or architecture.\n[TEXT & LOGOS]: Transcribe any visible text. If none, write \"No text visible\".\n[VIBE & CONTEXT]: Describe the lighting, aesthetic, and overall mood.\n\nWrite around 100 words. Be observant but respect privacy guidelines."
+            },
+            {
+              "type": "image",
+              "imageType": "base64"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        752,
+        736
+      ],
+      "id": "f6b6145c-046e-41c4-acfa-4a9f64d7dbb7",
+      "name": "Photo",
+      "credentials": {
+        "openAiApi": {
+          "id": "",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "users",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "chat_id",
+              "condition": "eq",
+              "keyValue": "={{ $json[\"result\"][\"chat\"][\"id\"] }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "voice_tokens",
+              "fieldValue": "={{ $('Get_Active_User4').item.json.plan === 'premium' ? $('Get_Active_User4').item.json.voice_tokens : ($('Get_Active_User4').item.json.voice_tokens - 1) }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        3824,
+        -256
+      ],
+      "id": "97157bf5-5ed9-4398-823c-01960731a962",
+      "name": "Update a row4",
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "54323012-9abc-4fca-a569-46b53b52aad9",
+              "leftValue": "={{ $('Get_Active_User4').first().json.plan }}",
+              "rightValue": "premium",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        4032,
+        -256
+      ],
+      "id": "fdf1afb2-8686-4d51-a17a-039197895f40",
+      "name": "If5"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').first().json.callback_query.from.id }}",
+        "text": "=🎙️ Я ответил тебе голосовым!  Осталось бесплатных попыток: {{ $('Get_Active_User4').first().json.voice_tokens - 1 }} из 5.   ⭐️ Чтобы разблокировать безлимитный голос — жми /premium",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        4240,
+        -272
+      ],
+      "id": "d4fb7167-81f5-4c30-8997-8f48230f0e20",
+      "name": "Send a text message7",
+      "webhookId": "df175583-a5f6-4ca8-b8c0-fa31ef344c34",
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/bot<YOUR_BOT_TOKEN>/sendInvoice",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"chat_id\": \"{{ $('Telegram Trigger').item.json.message.chat.id }}\",\n  \"title\": \"Premium Доступ ⭐️\",\n  \"description\": \"Безлимитные голосовые сообщения и доступ к NPC\",\n  \"payload\": \"user_premium_sub\",\n  \"provider_token\": \"\",\n  \"currency\": \"XTR\",\n  \"prices\": [\n    {\n      \"label\": \"Premium Status\",\n      \"amount\": 50\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        576,
+        960
+      ],
+      "id": "a0bdca2d-dc70-4311-bd5e-8d4f8c30974c",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "amount": 30,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3872,
+        320
+      ],
+      "id": "1300ad00-f2e4-4e89-b219-248c8f29f069",
+      "name": "Wait",
+      "webhookId": "cfdb502f-7a00-4812-b235-dd756dcedb76"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "users",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "chat_id",
+              "keyValue": "={{ $('Telegram Trigger').item.json.message.chat.id }}"
+            },
+            {
+              "keyName": "plan",
+              "keyValue": "base"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        4080,
+        320
+      ],
+      "id": "647ae898-881a-4221-a924-f441d6383b47",
+      "name": "Get a row1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "Stop settling for basic text, bruh. ✋ You're missing out on the full experience. Unlock the voice feature now with /premium. Let's get it! ⚡️",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        4288,
+        320
+      ],
+      "id": "b1293c5a-aa47-44c2-be6d-a1e3a4094d49",
+      "name": "Send a text message9",
+      "webhookId": "efdd919c-449e-43cb-b49c-79c7bb22ff24",
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "1785216408",
+        "text": "=🚨 НОВЫЙ ТИКЕТ От: {{ $('Telegram Trigger').item.json.message.from.first_name }} ID: {{ $('Telegram Trigger').item.json.message.from.id }}  {{ $json.message.text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        384,
+        -784
+      ],
+      "id": "678c6a91-1d88-4476-81c4-948228f35e7f",
+      "name": "Send a text message10",
+      "webhookId": "651b1e57-71c3-4a1f-8bf7-21c5fb88b556",
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.from.id }}",
+        "text": "Запрос отправлен админу! Скоро разберемся. 🤙",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        592,
+        -784
+      ],
+      "id": "7d0fad7e-d1bc-42b0-b5e1-037ffdba5d04",
+      "name": "Send a text message11",
+      "webhookId": "c1c2e8e4-7eb3-4e68-a736-1598c4ef365f",
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.text.split(' ')[1] }}",
+        "text": "=Ответ от поддержки: {{ $('Telegram Trigger').item.json.message.text.split(' ').slice(2).join(' ') }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        368,
+        -944
+      ],
+      "id": "ffeadb24-042c-41aa-a582-81fdfc0389ad",
+      "name": "Send a text message12",
+      "webhookId": "28d437f0-fe3d-4355-a0bd-95695bab9904",
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.result.user.id }}",
+        "text": "👨‍💻 Поддержка на связи! Опиши свою проблему прямо в ответ на это сообщение 👇",
+        "replyMarkup": "forceReply",
+        "forceReply": {
+          "force_reply": true
+        },
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -144,
+        -768
+      ],
+      "id": "8ef1723f-bc52-4f03-8eca-05fea805d7f4",
+      "name": "Send a text message13",
+      "webhookId": "761a681f-6fef-436c-8f5b-46880f6e5ab6",
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getChatMember",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "chat_id",
+              "value": "@EnglishVay_tgc"
+            },
+            {
+              "name": "user_id",
+              "value": "={{ $json.message ? $json.message.from.id : $json.callback_query.from.id }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -96,
+        0
+      ],
+      "id": "55347b20-d6c9-4b4b-8637-0cf620ba2874",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "1bfecd62-d0f6-4a8c-a539-c765feca26e8",
+              "leftValue": "={{ $json.result.status }}",
+              "rightValue": "left",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        64,
+        0
+      ],
+      "id": "88d3c8b6-300a-44a7-928c-043bd54c307a",
+      "name": "If6"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.from.id }}",
+        "text": "⛔️ Доступ закрыт!  Бро, чтобы общаться со мной, нужно состоять в VIP-клубе. Подпишись на канал, а потом возвращайся и жми /start",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "🚀 Подписаться",
+                    "additionalFields": {
+                      "url": "https://t.me/EnglishVay_tgc"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -576,
+        224
+      ],
+      "id": "d28ff387-0fb0-48b7-843c-a80a1fa47c13",
+      "name": "Send a text message8",
+      "webhookId": "38fd23f4-b055-4b47-8f90-cf1446d60fd8",
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d45c7140-e4b5-4954-a76f-91a650fae5e4",
+              "leftValue": "={{ $('Get_Active_User3').item.json.plan }}",
+              "rightValue": "=premium",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "e17daff0-1c8c-4b49-bd04-4f96f3aab400",
+              "leftValue": "={{ $('Get_Active_User3').item.json.voice_tokens }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1392,
+        -64
+      ],
+      "id": "39e898b9-5af1-4f1d-9de0-f3b4666802a0",
+      "name": "If7"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "users",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "chat_id",
+              "keyValue": "={{ $('Telegram Trigger').item.json.message?.from?.id || $('Telegram Trigger').item.json.callback_query?.from?.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        960,
+        80
+      ],
+      "id": "a0af67bb-8b25-445f-bc70-f0dea6712ff5",
+      "name": "Get_Active_User3",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "users",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "chat_id",
+              "condition": "eq",
+              "keyValue": "={{ $('Get_Active_User3').item.json.chat_id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "voice_tokens",
+              "fieldValue": "={{ $('Get_Active_User3').item.json.plan === 'premium' ? $('Get_Active_User3').item.json.voice_tokens : ($('Get_Active_User3').item.json.voice_tokens - 1) }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1728,
+        -80
+      ],
+      "id": "bcdf0002-21fa-44e0-b946-4455fd1dd833",
+      "name": "Update a row5",
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "54323012-9abc-4fca-a569-46b53b52aad9",
+              "leftValue": "={{ $('Get_Active_User3').first().json.plan }}",
+              "rightValue": "premium",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1872,
+        -80
+      ],
+      "id": "63b95a91-85e1-4a02-86be-152e6ba20765",
+      "name": "If8"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "=🎙️ Ты отправил мне голосовое!  Осталось бесплатных попыток: {{ $('Get_Active_User3').first().json.voice_tokens - 1 }} из 5.   ⭐️ Чтобы разблокировать безлимитный голос — жми /premium",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1536,
+        160
+      ],
+      "id": "23efaa44-04a3-48af-8f43-4b020ab8cdfd",
+      "name": "Send a text message14",
+      "webhookId": "df175583-a5f6-4ca8-b8c0-fa31ef344c34",
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "=Bro, твои бесплатные голосовые закончились 💀 Пиши текстом или забирай /premium, чтобы я слушал твои аудио безлимитно! 🎙️",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1488,
+        48
+      ],
+      "id": "6123ecec-d958-42d9-bc75-38ecc892b127",
+      "name": "Send a text message15",
+      "webhookId": "df175583-a5f6-4ca8-b8c0-fa31ef344c34",
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "users",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "chat_id",
+              "keyValue": "={{ $('Telegram Trigger').item.json.message?.from?.id || $('Telegram Trigger').item.json.callback_query?.from?.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1664,
+        544
+      ],
+      "id": "b3204dc7-a9d2-4918-95bd-16c290f70ade",
+      "name": "Get_Active_User4",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d45c7140-e4b5-4954-a76f-91a650fae5e4",
+              "leftValue": "={{ $('Get_Active_User4').item.json.plan }}",
+              "rightValue": "=premium",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "e17daff0-1c8c-4b49-bd04-4f96f3aab400",
+              "leftValue": "={{ $('Get_Active_User4').item.json.voice_tokens }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1808,
+        544
+      ],
+      "id": "747f3532-a186-4b86-9ac1-3887a62f63b5",
+      "name": "If9"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.callback_query.from.id }}",
+        "text": "=Bro, твои бесплатные голосовые закончились 💀 Забирай /premium, чтобы я слушал твои аудио безлимитно! 🎙️",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1616,
+        736
+      ],
+      "id": "ebb294e1-bbdb-45bf-b91c-f36b59218828",
+      "name": "Send a text message16",
+      "webhookId": "df175583-a5f6-4ca8-b8c0-fa31ef344c34",
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "personas",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "character_name",
+              "keyValue": "={{ $('Get_Active_User4').item?.json?.active_persona || 'Chad' }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1888,
+        496
+      ],
+      "id": "fdda4fd2-73e2-4a8a-82f4-f8439ac09285",
+      "name": "Load_Persona_Lore2",
+      "executeOnce": false,
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate audio": {
+      "main": [
+        [
+          {
+            "node": "Send an audio file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a file": {
+      "main": [
+        [
+          {
+            "node": "If7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording": {
+      "main": [
+        [
+          {
+            "node": "Update a row5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Get a file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get_Active_User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "Memory Observer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send an audio file": {
+      "main": [
+        [
+          {
+            "node": "Update a row4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch2": {
+      "main": [
+        [
+          {
+            "node": "Commands",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message1": {
+      "main": [
+        []
+      ]
+    },
+    "Commands": {
+      "main": [
+        [
+          {
+            "node": "Get a row",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message10",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get a file1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get_Active_User3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get_Active_User1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get_Active_User4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get_Active_User2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update a row",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message13",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message12",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Answer Query a callback": {
+      "main": [
+        [
+          {
+            "node": "Auto Greeting Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto Greeting Prompt": {
+      "main": [
+        [
+          {
+            "node": "Get_Active_User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search in Tavily": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DATA_TOOL": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4o-mini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "DATA_TOOL",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DATA BASE": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "DATA_TOOL",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "DATA BASE",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save User Message": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Message a model1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Typing 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Create a row1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Load_Persona_Lore",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row1": {
+      "main": [
+        [
+          {
+            "node": "Load_Persona_Lore",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row": {
+      "main": [
+        [
+          {
+            "node": "Answer Query a callback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load_Persona_Lore": {
+      "main": [
+        [
+          {
+            "node": "Save User Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get_Active_User": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get_Active_User1": {
+      "main": [
+        [
+          {
+            "node": "Load_Persona_Lore1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Update a row2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auditor Agent": {
+      "main": [
+        [
+          {
+            "node": "Update a row1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get_Active_User2": {
+      "main": [
+        [
+          {
+            "node": "Auditor Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Auditor Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row2": {
+      "main": [
+        [
+          {
+            "node": "Send a text message3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory Observer": {
+      "main": [
+        [
+          {
+            "node": "Update a row3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row3": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load_Persona_Lore1": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model1": {
+      "main": [
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "Send a text message6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a row": {
+      "main": [
+        [
+          {
+            "node": "If4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If4": {
+      "main": [
+        [
+          {
+            "node": "Create a row2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row2": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory3": {
+      "ai_memory": [
+        [
+          {
+            "node": "Auditor Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a file1": {
+      "main": [
+        [
+          {
+            "node": "Photo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message3": {
+      "main": [
+        []
+      ]
+    },
+    "Photo": {
+      "main": [
+        [
+          {
+            "node": "Get_Active_User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row4": {
+      "main": [
+        [
+          {
+            "node": "If5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If5": {
+      "main": [
+        [
+          {
+            "node": "Send a text message7",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Memory Observer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message7": {
+      "main": [
+        [
+          {
+            "node": "Memory Observer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Get a row1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a row1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message10": {
+      "main": [
+        [
+          {
+            "node": "Send a text message11",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message13": {
+      "main": [
+        []
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "If6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If6": {
+      "main": [
+        [
+          {
+            "node": "Switch2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get_Active_User3": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If7": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message15",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row5": {
+      "main": [
+        [
+          {
+            "node": "If8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If8": {
+      "main": [
+        [
+          {
+            "node": "Send a text message14",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get_Active_User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message14": {
+      "main": [
+        [
+          {
+            "node": "Get_Active_User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get_Active_User4": {
+      "main": [
+        [
+          {
+            "node": "If9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If9": {
+      "main": [
+        [
+          {
+            "node": "Load_Persona_Lore2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message16",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load_Persona_Lore2": {
+      "main": [
+        [
+          {
+            "node": "Generate audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "161d12dd-5039-49ea-8d1d-96fff916661a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "<YOUR_INSTANCE_ID>"
+  },
+  "id": "vwIfwBCQ3r0eDU5X",
+  "tags": []
+}
