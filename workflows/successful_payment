@@ -1,0 +1,168 @@
+{
+  "name": "My workflow 5",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -400,
+        16
+      ],
+      "id": "35b869d1-5208-4628-96dc-63804720cb2c",
+      "name": "Payment Trigger",
+      "webhookId": "b42be73c-339e-4b61-8bb2-faa06baadbdf",
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4e378916-5789-4a60-8403-f110ee69c3db",
+              "leftValue": "={{ $json.message.successful_payment }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -208,
+        16
+      ],
+      "id": "6ce7ab2a-5b9c-424e-bd22-0f8e92adb5eb",
+      "name": "If6"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "users",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "chat_id",
+              "condition": "eq",
+              "keyValue": "={{ $('Payment Trigger').item.json.message.from.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "plan",
+              "fieldValue": "premium"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "64b3c1bf-61a0-45e4-a7e8-17b4c578408d",
+      "name": "Update a row5",
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Payment Trigger').item.json.message.from.id }}",
+        "text": "=Оплата прошла успешно! 🎉 Твой статус обновлен до PREMIUM. Напиши мне что-нибудь, чтобы услышать мой голос!",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        272,
+        0
+      ],
+      "id": "0d92e132-6195-4521-ad24-7a4031d72677",
+      "name": "Send a text message8",
+      "webhookId": "cbaebc05-d640-4781-8408-9d7481eeaeae",
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Payment Trigger": {
+      "main": [
+        [
+          {
+            "node": "If6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If6": {
+      "main": [
+        [
+          {
+            "node": "Update a row5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row5": {
+      "main": [
+        [
+          {
+            "node": "Send a text message8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "afaa78fd-4c73-49b9-a1c8-73846af942e3",
+  "meta": {
+    "instanceId": "<YOUR_INSTANCE_ID>"
+  },
+  "id": "Mp3HgecLjvpwDmQq",
+  "tags": []
+}
