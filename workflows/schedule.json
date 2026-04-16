@@ -1,0 +1,154 @@
+{
+  "name": "My workflow 4",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 17
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "3ee21799-b0db-4045-abe2-df3d8b632333",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "users",
+        "returnAll": true,
+        "filters": {
+          "conditions": []
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "82215dc7-f122-4753-a9e3-8e8aba4d01eb",
+      "name": "Get many rows",
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=You are the \"World Event Generator\". Your goal is to initiate a conversation with the user as their active persona (Jax, Chloe, or Chad).\n\nCONTEXT:\n- Persona: {{ $json.active_persona }}\n- Relationship Status: \n  F: {{ $json.active_persona == 'Jax' ? $json.friend_jax : ($json.active_persona == 'Chloe' ? $json.friend_chloe : $json.friend_chad) }}\n  R: {{ $json.active_persona == 'Jax' ? $json.love_jax : ($json.active_persona == 'Chloe' ? $json.love_chloe : $json.love_chad) }}\n- Memory: {{ $json.active_persona == 'Jax' ? $json.rel_jax : ($json.active_persona == 'Chloe' ? $json.rel_chloe : $json.rel_chad) }}\n\nRULES:\n1. Don't ask \"How are you?\".\n2. Start with an event based on your lore. \n   - Jax: Maybe he's at a coding hackathon or found a new gadget.\n   - Chloe: Maybe she's at a concert or found a cool vintage dress.\n   - Chad: Maybe he's at the beach or a gym party.\n3. Keep it short (1-3 sentences).\n4. Act like you are busy doing this thing right now.\n5. Use emojis.\n6. Speak ONLY in English.\n\nEXAMPLE (Chad): \"Bro, you won't believe the vibe at the beach today! 🌊 The waves are massive. Where you at? I need someone to see this! 🤙\""
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        384,
+        0
+      ],
+      "id": "e6a8b0c6-d89c-44e8-981c-d1dea853eadc",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Get many rows').item.json.chat_id }}",
+        "text": "={{ $json.output[0].content[0].text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        672,
+        0
+      ],
+      "id": "a0544809-1515-4ef4-9d7b-90416ad4611b",
+      "name": "Send a text message",
+      "webhookId": "0f69e8ae-1bf7-4fcd-a835-ebfd72667f63",
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Telegram account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "ff448d59-8352-460f-8bd0-7464f2c1888b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "<YOUR_INSTANCE_ID>"
+  },
+  "id": "WWdYAfcMEkivGuER",
+  "tags": []
+}
