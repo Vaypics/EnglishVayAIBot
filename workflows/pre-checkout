@@ -1,0 +1,71 @@
+{
+  "name": "My workflow 6",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "pre_checkout_query"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "780b3100-5dd7-4d3d-92fb-cc8c18bdc2a1",
+      "name": "Telegram Trigger1",
+      "webhookId": "2e58edcd-3754-4c64-8663-432d0d9a1e52",
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/bot<YOUR_BOT_TOKEN>/sendInvoice",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"pre_checkout_query_id\": \"{{ $json.id }}\",\n  \"ok\": true\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        240,
+        0
+      ],
+      "id": "02e57dcf-d1c1-43f8-ae73-a2d45d5c8ab3",
+      "name": "HTTP Request1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "534af1be-f7e8-4f01-bbe2-d9e78876bc8d",
+  "meta": {
+    "instanceId": "<YOUR_INSTANCE_ID>"
+  },
+  "id": "0z2M978ubzyefpAy",
+  "tags": []
+}
